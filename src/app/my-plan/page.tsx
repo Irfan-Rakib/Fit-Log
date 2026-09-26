@@ -1,21 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Activity, Flame, ListChecks, Timer } from "lucide-react";
+import { Activity, ChevronDown, Flame, ListChecks, Timer } from "lucide-react";
 
 import { useFitLog } from "@/context/FitLogContext";
 import MyPlanCard from "@/components/MyPlanCard";
 import EmptyState from "@/components/EmptyState";
 
 type Tab = "plan" | "saved";
+type SortOption = "duration" | "calories" | "rating";
 
 export default function MyPlanPage() {
   const [activeTab, setActiveTab] = useState<Tab>("plan");
 
+  const [sortBy, setSortBy] = useState<SortOption>("duration");
+
   const { plan, saved } = useFitLog();
 
-  const activeWorkouts = activeTab === "plan" ? plan : saved;
-
+  // Metrics
   const metrics = useMemo(() => {
     return {
       exercises: plan.length,
@@ -28,6 +30,27 @@ export default function MyPlanPage() {
       ),
     };
   }, [plan]);
+
+  // Current tab workouts + sorting
+  const activeWorkouts = useMemo(() => {
+    const workouts = activeTab === "plan" ? plan : saved;
+
+    const sorted = [...workouts];
+
+    sorted.sort((a, b) => {
+      if (sortBy === "duration") {
+        return a.duration - b.duration;
+      }
+
+      if (sortBy === "calories") {
+        return a.caloriesBurned - b.caloriesBurned;
+      }
+
+      return b.rating - a.rating;
+    });
+
+    return sorted;
+  }, [activeTab, plan, saved, sortBy]);
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16 lg:px-8">
@@ -67,38 +90,71 @@ export default function MyPlanPage() {
         />
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-[#292929]">
-        <button
-          onClick={() => setActiveTab("plan")}
-          className={`relative px-5 py-4 text-xs font-bold uppercase tracking-widest transition sm:px-8 ${
-            activeTab === "plan"
-              ? "text-[#ccff00]"
-              : "text-[#666] hover:text-white"
-          }`}
-        >
-          Today's Plan
-          {activeTab === "plan" && (
-            <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#ccff00]" />
-          )}
-        </button>
+      {/* Tabs + Sort */}
+      <div className="flex flex-col gap-5 border-b border-[#292929] sm:flex-row sm:items-end sm:justify-between">
+        {/* Tabs */}
+        <div className="flex">
+          <button
+            onClick={() => setActiveTab("plan")}
+            className={`relative px-5 py-4 text-xs font-bold uppercase tracking-widest transition sm:px-8 ${
+              activeTab === "plan"
+                ? "text-[#ccff00]"
+                : "text-[#666] hover:text-white"
+            }`}
+          >
+            Today's Plan
+            {activeTab === "plan" && (
+              <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#ccff00]" />
+            )}
+          </button>
 
-        <button
-          onClick={() => setActiveTab("saved")}
-          className={`relative px-5 py-4 text-xs font-bold uppercase tracking-widest transition sm:px-8 ${
-            activeTab === "saved"
-              ? "text-[#ccff00]"
-              : "text-[#666] hover:text-white"
-          }`}
-        >
-          Saved
-          {activeTab === "saved" && (
-            <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#ccff00]" />
-          )}
-        </button>
+          <button
+            onClick={() => setActiveTab("saved")}
+            className={`relative px-5 py-4 text-xs font-bold uppercase tracking-widest transition sm:px-8 ${
+              activeTab === "saved"
+                ? "text-[#ccff00]"
+                : "text-[#666] hover:text-white"
+            }`}
+          >
+            Saved
+            {activeTab === "saved" && (
+              <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#ccff00]" />
+            )}
+          </button>
+        </div>
+
+        {/* Sort */}
+        <div className="pb-4 sm:w-44">
+          <label
+            htmlFor="my-plan-sort"
+            className="mb-2 block text-[9px] font-bold uppercase tracking-[0.2em] text-[#666]"
+          >
+            Sort By
+          </label>
+
+          <div className="relative">
+            <select
+              id="my-plan-sort"
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value as SortOption)}
+              className="w-full appearance-none border border-[#292929] bg-[#141414] px-4 py-3 pr-10 text-xs font-bold uppercase tracking-wider text-white outline-none transition focus:border-[#ccff00]"
+            >
+              <option value="duration">Duration</option>
+
+              <option value="calories">Calories</option>
+
+              <option value="rating">Rating</option>
+            </select>
+
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#ccff00]"
+            />
+          </div>
+        </div>
       </div>
 
-      {/* List */}
+      {/* Workout Cards */}
       <div className="mt-8 space-y-4">
         {activeWorkouts.length === 0 ? (
           <EmptyState saved={activeTab === "saved"} />
@@ -113,7 +169,7 @@ export default function MyPlanPage() {
         )}
       </div>
 
-      {/* Bottom info */}
+      {/* Plan Counter */}
       {activeTab === "plan" && plan.length > 0 && (
         <div className="mt-6 flex items-center gap-2 text-xs uppercase tracking-wider text-[#666]">
           <Activity size={15} className="text-[#ccff00]" />
