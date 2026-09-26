@@ -1,15 +1,15 @@
 export interface Workout {
-  id: string | number;
+  id: number;
   name: string;
-  category: string[];
-  equipment: string[];
   image: string;
-  description: string;
+  muscleGroups: string[];
+  equipment: string;
   difficulty: string;
+  duration: number;
+  caloriesBurned: number;
   sets: number;
   reps: string;
-  duration: number;
-  calories: number;
   rating: number;
+  description: string;
   instructions: string[];
 }
