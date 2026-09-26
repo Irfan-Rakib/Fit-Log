@@ -15,13 +15,13 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b border-[#292929] bg-[#0b0b0b]/95 backdrop-blur">
       <div className="mx-auto flex min-h-[76px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center bg-[#ccff00] text-black">
-            <Dumbbell size={21} strokeWidth={2.5} />
-          </div>
+          <div className="flex items-center ">
+            <div className="flex h-9 w-9 items-center justify-center text-[#ccff00] ">
+              <Dumbbell size={20} />
+            </div>
 
-          <span className="display-font text-2xl font-bold tracking-wide">
-            FITLOG
-          </span>
+            <span className="display-font text-xl font-bold">FITLOG</span>
+          </div>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
